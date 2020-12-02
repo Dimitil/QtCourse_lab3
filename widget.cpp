@@ -13,36 +13,32 @@ Widget::Widget(QWidget *parent)
     //buttonExit->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     comboBox = new QComboBox(this);
     //comboBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-    disableButton = new QPushButton("dis/enable", this);
+    comboBox->addItem("Vertical");
+    comboBox->addItem("Horizon");
+    comboBox->addItem("Grid");
+    connect(comboBox, SIGNAL(activated(int)), this, SLOT(slotChangeLayout(int)));
+
+    disableButton = new QPushButton("Disable", this);
     //disableButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+    connect(disableButton, &QPushButton::clicked, this, &Widget::slotDisableButton);
+
     styleSwitchButton = new QPushButton("style", this);
     //styleSwitchButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
     connect(buttonExit, &QPushButton::clicked, this, &Widget::close);
 
     frame   = new QFrame(this);
+    frame -> setFrameStyle(QFrame::Panel);
     edit    = createLineEdit();
     slider  = createSlider();
     label   = createLabel();
     spinBox = createSpinBox();
 
-
-
-    QHBoxLayout* mainLayout = createHBoxLayout(this);
-
     frameLayout = createVBoxLayout(frame);
 
-    frameLayout -> addWidget(slider);
-    frameLayout -> addWidget(label);
-    frameLayout -> addWidget(spinBox);
-    frameLayout -> addWidget(edit);
-    frameLayout->setAlignment(edit, Qt::AlignHCenter | Qt::AlignVCenter);
-    frameLayout->setAlignment(spinBox, Qt::AlignHCenter | Qt::AlignVCenter);
-    frameLayout->setAlignment(slider, Qt::AlignHCenter | Qt::AlignVCenter);
-    frameLayout->setAlignment(label, Qt::AlignHCenter | Qt::AlignVCenter);
+    QHBoxLayout* mainLayout = new QHBoxLayout(this);
 
-
-    QLayout* buttonsLayout = createVBoxLayout();
+    QLayout* buttonsLayout = new QVBoxLayout;
     buttonsLayout -> addWidget(buttonExit);
     buttonsLayout -> addWidget(comboBox);
     buttonsLayout -> addWidget(disableButton);
@@ -56,6 +52,9 @@ Widget::Widget(QWidget *parent)
     connect(spinBox, SIGNAL(valueChanged(int)), label, SLOT(setNum(int)));
     connect(edit, SIGNAL(textChanged(QString)), this, SLOT(mySlot(QString)));
     connect(this, SIGNAL(mySignal(int)), spinBox, SLOT(setValue(int)));
+
+    mySignal(20);
+
     //QObject::dumpObjectTree();
 }
 
@@ -81,7 +80,7 @@ QSlider*   Widget::createSlider(QWidget* parent)
     slider->setTickPosition(QSlider::TicksBothSides);
     slider->setTickInterval(5);
     slider->setSingleStep(1);
-    slider->setMinimumWidth(50);
+    slider->setMinimumWidth(300);
     //slider->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     return slider;
 
@@ -90,8 +89,7 @@ QLabel*    Widget::createLabel(QWidget* parent)
 {
     QLabel* lbl = new QLabel("no set", parent);
     lbl->setFrameStyle(QFrame::Plain);
-    lbl->setMinimumWidth(25);
-    lbl->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    lbl->setAlignment(Qt::AlignCenter);
     //lbl->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     return lbl;
 }
@@ -100,21 +98,43 @@ QSpinBox*  Widget::createSpinBox(QWidget* parent)
     QSpinBox* sb = new QSpinBox(parent);
     sb-> setMaximum(50);
     sb->setValue(25);
+    sb->setAlignment(Qt::AlignCenter);
     sb->setFixedSize(sb->sizeHint());
-    //slider->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     return sb;
 }
 
 QHBoxLayout* Widget::createHBoxLayout(QWidget* parent)
 {
     QHBoxLayout *hbl = new QHBoxLayout(parent);
+    hbl -> addWidget(slider);
+    hbl -> addWidget(label);
+    hbl -> addWidget(spinBox);
+    hbl -> addWidget(edit);
+   // hbl->setAlignment(edit, Qt::AlignCenter);
+   // hbl->setAlignment(spinBox, Qt::AlignCenter);
     return hbl;
 }
 
 QVBoxLayout* Widget::createVBoxLayout(QWidget* parent)
 {
-    QVBoxLayout *hbl = new QVBoxLayout(parent);
-    return hbl;
+    QVBoxLayout *vbl = new QVBoxLayout(parent);
+    vbl -> addWidget(slider);
+    vbl -> addWidget(label);
+    vbl -> addWidget(spinBox);
+    vbl -> addWidget(edit);
+    vbl->setAlignment(edit, Qt::AlignCenter);
+    vbl->setAlignment(spinBox, Qt::AlignCenter);
+    return vbl;
+}
+
+QGridLayout* Widget::createGridLayout(QWidget* parent)
+{
+    QGridLayout *gl = new QGridLayout(parent);
+    gl -> addWidget(slider, 0, 0);
+    gl -> addWidget(label, 0, 1);
+    gl -> addWidget(spinBox, 1, 1);
+    gl -> addWidget(edit, 1, 0, Qt::AlignCenter);
+    return gl;
 }
 
 void Widget::mySlot(QString str)
@@ -123,5 +143,36 @@ void Widget::mySlot(QString str)
     int num = str.toInt(&ok);
    if (ok) {
         emit mySignal(num);
+    }
+}
+
+void Widget::slotChangeLayout(int index)
+{
+    delete frameLayout;
+    switch (index) {
+    case 0:
+        frameLayout = createVBoxLayout(frame);
+        break;
+    case 1:
+        frameLayout = createHBoxLayout(frame);
+        break;
+    case 2:
+        frameLayout = createGridLayout(frame);
+        break;
+    default:
+        return;
+    }
+    repaint();
+}
+
+void Widget::slotDisableButton()
+{
+    m_disable = !m_disable;
+    frame->setDisabled(m_disable);
+    if (m_disable) {
+        disableButton -> setText("Enable");
+    }
+    else {
+        disableButton -> setText("Disable");
     }
 }

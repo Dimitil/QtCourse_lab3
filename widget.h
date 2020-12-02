@@ -24,6 +24,7 @@ class Widget : public QWidget
     QComboBox *comboBox;
     QPushButton *disableButton;
     QPushButton *styleSwitchButton;
+    bool m_disable = false;
 
 signals:
 
@@ -31,6 +32,8 @@ signals:
 
 protected slots:
     void mySlot(QString);
+    void slotChangeLayout(int index);
+    void slotDisableButton();
 public:
 
     Widget(QWidget *parent = nullptr);
@@ -43,5 +46,7 @@ public:
 
     QHBoxLayout* createHBoxLayout(QWidget* parent = 0);
     QVBoxLayout* createVBoxLayout(QWidget* parent = 0);
+    QGridLayout* createGridLayout(QWidget* parent = 0);
+
 };
 #endif // WIDGET_H
