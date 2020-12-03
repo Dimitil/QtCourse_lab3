@@ -47,15 +47,16 @@ Widget::Widget(QWidget *parent)
     mainLayout -> addWidget(frame);
     mainLayout -> addLayout(buttonsLayout);
 
-    connect(spinBox,SIGNAL(valueChanged(int)), slider, SLOT(setValue(int)));
-    connect(slider,SIGNAL(valueChanged(int)), spinBox, SLOT(setValue(int)));
+    connect(spinBox, qOverload<int>(&QSpinBox::valueChanged), slider, &QSlider::setValue);
+    connect(slider, &QSlider::valueChanged, spinBox, &QSpinBox::setValue);
     connect(spinBox, SIGNAL(valueChanged(int)), label, SLOT(setNum(int)));
-    connect(edit, SIGNAL(textChanged(QString)), this, SLOT(mySlot(QString)));
-    connect(this, SIGNAL(mySignal(int)), spinBox, SLOT(setValue(int)));
+    connect(edit, &QLineEdit::textChanged, this, &Widget::mySlot);
+    connect(this, &Widget::mySignal, spinBox, &QSpinBox::setValue);
 
     mySignal(20);
 
     //QObject::dumpObjectTree();
+
 }
 
 Widget::~Widget()

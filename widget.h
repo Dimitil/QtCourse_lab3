@@ -14,6 +14,9 @@
 
 class Widget : public QWidget
 {
+
+
+
     Q_OBJECT
     QFrame* frame;
     QLineEdit *edit;
@@ -48,5 +51,9 @@ public:
     QVBoxLayout* createVBoxLayout(QWidget* parent = 0);
     QGridLayout* createGridLayout(QWidget* parent = 0);
 
+
 };
+
+
+
 #endif // WIDGET_H
